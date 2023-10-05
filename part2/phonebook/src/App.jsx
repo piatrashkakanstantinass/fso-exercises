@@ -7,9 +7,34 @@ const Filter = ({ value, onChange }) => (
   </p>
 );
 
-const PersonForm = ({ persons, setPersons }) => {
+const Notification = ({ message, success }) => {
+  if (message === null) {
+    return null;
+  }
+
+  return <div className={success ? "success" : "error"}>{message}</div>;
+};
+
+const PersonForm = ({
+  persons,
+  setPersons,
+  setSuccessMessage,
+  setErrorMessage,
+}) => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
+
+  function displayMessage(isSuccess, message) {
+    if (isSuccess) {
+      setSuccessMessage(message);
+    } else {
+      setErrorMessage(message);
+    }
+    setTimeout(() => {
+      setSuccessMessage(null);
+      setErrorMessage(null);
+    }, 500);
+  }
 
   return (
     <form
@@ -39,6 +64,13 @@ const PersonForm = ({ persons, setPersons }) => {
                     p.id === foundPerson.id ? returnedPerson : p
                   )
                 );
+                displayMessage(true, `Updated ${newName}`);
+              })
+              .catch(() => {
+                displayMessage(
+                  false,
+                  `Information on ${newName} has already been removed from the server`
+                );
               });
           }
           return;
@@ -52,6 +84,7 @@ const PersonForm = ({ persons, setPersons }) => {
             setNewName("");
             setNewNumber("");
             setPersons(persons.concat(returnedPerson));
+            displayMessage(true, `Added ${newName}`);
           });
       }}
     >
@@ -97,6 +130,8 @@ const Persons = ({ persons, filter, onDelete }) => (
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [filter, setFilter] = useState("");
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => setPersons(initialPersons));
@@ -105,9 +140,16 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={successMessage} success={true} />
+      <Notification message={errorMessage} success={false} />
       <Filter value={filter} onChange={(e) => setFilter(e.target.value)} />
       <h2>add a new</h2>
-      <PersonForm persons={persons} setPersons={setPersons} />
+      <PersonForm
+        persons={persons}
+        setPersons={setPersons}
+        setSuccessMessage={setSuccessMessage}
+        setErrorMessage={setErrorMessage}
+      />
       <h2>Numbers</h2>
       <Persons
         persons={persons}
