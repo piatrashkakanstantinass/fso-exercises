@@ -59,6 +59,13 @@ const PersonForm = ({
               .then((returnedPerson) => {
                 setNewName("");
                 setNewNumber("");
+                if (!returnedPerson) {
+                  displayMessage(
+                    false,
+                    `Information on ${newName} has already been removed from the server`
+                  );
+                  return;
+                }
                 setPersons(
                   persons.map((p) =>
                     p.id === foundPerson.id ? returnedPerson : p
@@ -66,11 +73,8 @@ const PersonForm = ({
                 );
                 displayMessage(true, `Updated ${newName}`);
               })
-              .catch(() => {
-                displayMessage(
-                  false,
-                  `Information on ${newName} has already been removed from the server`
-                );
+              .catch((err) => {
+                displayMessage(false, err.response.data.message);
               });
           }
           return;
@@ -85,6 +89,9 @@ const PersonForm = ({
             setNewNumber("");
             setPersons(persons.concat(returnedPerson));
             displayMessage(true, `Added ${newName}`);
+          })
+          .catch((err) => {
+            displayMessage(false, err.response.data.error);
           });
       }}
     >
