@@ -4,6 +4,29 @@ const app = require("../app");
 const helper = require("./test_helper");
 const api = supertest(app);
 const Blog = require("../models/blog");
+const User = require("../models/user");
+
+let jwtToken;
+let user = {
+  username: "test_user",
+  name: "test user",
+};
+
+beforeAll(async () => {
+  await User.deleteMany({});
+  const newUser = {
+    username: user.username,
+    password: "securepassword",
+    name: user.name,
+  };
+  const creationResponse = await api.post("/api/users").send(newUser);
+  user.id = creationResponse.body.id;
+  const response = await api.post("/api/login").send({
+    username: newUser.username,
+    password: newUser.password,
+  });
+  jwtToken = response.body.token;
+});
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -43,6 +66,7 @@ describe("creating blog", () => {
     };
     await api
       .post("/api/blogs")
+      .set("Authorization", `Bearer ${jwtToken}`)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -51,7 +75,7 @@ describe("creating blog", () => {
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1);
     expect(
       blogsAtEnd.map((blog) => {
-        return { ...blog, id: undefined };
+        return { ...blog, user: undefined, id: undefined };
       })
     ).toContainEqual(newBlog);
   });
@@ -64,6 +88,7 @@ describe("creating blog", () => {
     };
     await api
       .post("/api/blogs")
+      .set("Authorization", `Bearer ${jwtToken}`)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -71,7 +96,7 @@ describe("creating blog", () => {
     const blogsAtEnd = await helper.blogsInDb();
     expect(
       blogsAtEnd.map((blog) => {
-        return { ...blog, id: undefined };
+        return { ...blog, user: undefined, id: undefined };
       })
     ).toContainEqual({ ...newBlog, likes: 0 });
   });
@@ -81,7 +106,11 @@ describe("creating blog", () => {
       author: "Bob Stevenson",
       url: "https://random.org",
     };
-    await api.post("/api/blogs").send(newBlog).expect(400);
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${jwtToken}`)
+      .send(newBlog)
+      .expect(400);
 
     const blogsAtEnd = await helper.blogsInDb();
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
@@ -92,7 +121,22 @@ describe("creating blog", () => {
       author: "Bob Stevenson",
       title: "Great blog by Bob",
     };
-    await api.post("/api/blogs").send(newBlog).expect(400);
+    await api
+      .post("/api/blogs")
+      .set("Authorization", `Bearer ${jwtToken}`)
+      .send(newBlog)
+      .expect(400);
+
+    const blogsAtEnd = await helper.blogsInDb();
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
+  });
+
+  test("user token is required", async () => {
+    const newBlog = {
+      author: "Bob Stevenson",
+      title: "Great blog by Bob",
+    };
+    await api.post("/api/blogs").send(newBlog).expect(401);
 
     const blogsAtEnd = await helper.blogsInDb();
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
@@ -100,19 +144,37 @@ describe("creating blog", () => {
 });
 
 describe("deleting blog", () => {
+  let blogId;
+  beforeEach(async () => {
+    const blog = new Blog({
+      title: "Test blog",
+      url: "no-url.org",
+      user: user.id,
+    });
+    const savedBlog = await blog.save();
+    blogId = savedBlog._id.toString();
+  });
+
   test("deletes a blog by id", async () => {
     const startingBlogs = await helper.blogsInDb();
-    const blogId = startingBlogs[0].id;
 
-    await api.delete(`/api/blogs/${blogId}`).expect(204);
+    await api
+      .delete(`/api/blogs/${blogId}`)
+      .set("Authorization", `Bearer ${jwtToken}`)
+      .expect(204);
 
     const blogsAtEnd = await helper.blogsInDb();
     expect(blogsAtEnd).toHaveLength(startingBlogs.length - 1);
-    expect(blogsAtEnd).not.toContainEqual(startingBlogs[0]);
+    expect(blogsAtEnd).not.toContainEqual(
+      startingBlogs.find((blog) => blog.id === blogId)
+    );
   });
 
   test("handles malformatted id", async () => {
-    await api.delete("/api/blogs/jk;fd9").expect(400);
+    await api
+      .delete("/api/blogs/jk;fd9")
+      .set("Authorization", `Bearer ${jwtToken}`)
+      .expect(400);
   });
 });
 

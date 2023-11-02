@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
 const blogSchema = new mongoose.Schema({
   title: {
@@ -14,6 +15,7 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  user: { type: Schema.Types.ObjectId, ref: "User", immutable: true },
 });
 
 blogSchema.set("toJSON", {
