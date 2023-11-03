@@ -5,7 +5,7 @@ const useUser = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
 
   useEffect(() => {
-    if (user != null) {
+    if (user !== null) {
       blogService.setToken(user.token);
     }
   }, [user]);

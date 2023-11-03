@@ -1,7 +1,7 @@
 import { useState } from "react";
 import blogService from "../services/blogs";
 
-const BlogCreator = ({ onCreate, onCreateFail }) => {
+const BlogForm = ({ onCreate, onCreateFail }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
@@ -56,4 +56,4 @@ const BlogCreator = ({ onCreate, onCreateFail }) => {
   );
 };
 
-export default BlogCreator;
+export default BlogForm;
