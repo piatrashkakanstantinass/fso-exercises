@@ -23,6 +23,19 @@ const App = () => {
     return <Login onLogin={(u) => setUser(u)} />;
   }
 
+  async function handleSubmit(title, author, url) {
+    try {
+      const newBlog = await blogService.create({ title, author, url });
+      setBlogs(blogs.concat(newBlog));
+      setMessageIsError(false);
+      setMessage(`a new blog ${newBlog.title} by ${newBlog.author} added`);
+      setFormVisible(false);
+    } catch (error) {
+      setMessageIsError(true);
+      setMessage(error.response.data.error);
+    }
+  }
+
   return (
     <>
       <h2>blogs</h2>
@@ -36,20 +49,7 @@ const App = () => {
         openText="new blog"
         onVisibleChange={(e) => setFormVisible(e)}
       >
-        <BlogForm
-          onCreate={(newBlog) => {
-            setBlogs(blogs.concat(newBlog));
-            setMessageIsError(false);
-            setMessage(
-              `a new blog ${newBlog.title} by ${newBlog.author} added`
-            );
-            setFormVisible(false);
-          }}
-          onCreateFail={(error) => {
-            setMessageIsError(true);
-            setMessage(error.error);
-          }}
-        />
+        <BlogForm onSubmit={handleSubmit} />
       </Toggleable>
       <BlogList
         blogs={blogs}

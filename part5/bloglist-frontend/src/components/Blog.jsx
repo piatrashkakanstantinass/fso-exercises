@@ -1,8 +1,7 @@
 import { useState } from "react";
-import blogService from "../services/blogs";
 import useUser from "../hooks/useUser";
 
-const Blog = ({ blog, onChange }) => {
+const Blog = ({ blog, onIncreaseLike, onDelete }) => {
   const [user] = useUser();
 
   const blogStyle = {
@@ -14,23 +13,6 @@ const Blog = ({ blog, onChange }) => {
   };
 
   const [expanded, setExpanded] = useState(false);
-
-  const increaseLikes = async () => {
-    const updatedBlog = await blogService.update(blog.id, {
-      ...blog,
-      likes: blog.likes + 1,
-      user: blog.user?.id,
-    });
-    onChange(updatedBlog);
-  };
-
-  const deleteBlog = async () => {
-    if (!confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-      return;
-    }
-    await blogService.deleteBlog(blog.id);
-    onChange(null);
-  };
 
   return (
     <div style={blogStyle}>
@@ -45,12 +27,12 @@ const Blog = ({ blog, onChange }) => {
           <div>{blog.url}</div>
           <div>
             {blog.likes}
-            <button onClick={increaseLikes}>like</button>
+            <button onClick={onIncreaseLike}>like</button>
           </div>
           <div>{blog.user?.name}</div>
-          {user.username === blog.user?.username && (
+          {user && user.username === blog.user?.username && (
             <div>
-              <button onClick={deleteBlog}>delete</button>
+              <button onClick={onDelete}>delete</button>
             </div>
           )}
         </>
