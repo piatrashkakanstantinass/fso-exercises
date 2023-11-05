@@ -15,10 +15,10 @@ const Blog = ({ blog, onIncreaseLike, onDelete }) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className="blog">
       <div>
         {blog.title} {blog.author}
-        <button onClick={() => setExpanded(!expanded)}>
+        <button className="blog-expand" onClick={() => setExpanded(!expanded)}>
           {expanded ? "hide" : "view"}
         </button>
       </div>
@@ -26,7 +26,7 @@ const Blog = ({ blog, onIncreaseLike, onDelete }) => {
         <>
           <div>{blog.url}</div>
           <div>
-            {blog.likes}
+            <span className="like-count">{blog.likes}</span>
             <button onClick={onIncreaseLike}>like</button>
           </div>
           <div>{blog.user?.name}</div>

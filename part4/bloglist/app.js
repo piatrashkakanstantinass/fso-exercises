@@ -3,10 +3,7 @@ const express = require("express");
 require("express-async-errors");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const notesRouter = require("./controllers/blogs");
 const middleware = require("./utils/middleware");
-const usersRouter = require("./controllers/users");
-const loginRouter = require("./controllers/login");
 
 const app = express();
 
@@ -16,9 +13,14 @@ app.use(cors());
 app.use(express.json());
 app.use(middleware.tokenExtractor);
 
-app.use("/api/blogs", notesRouter);
-app.use("/api/users", usersRouter);
-app.use("/api/login", loginRouter);
+app.use("/api/blogs", require("./controllers/blogs"));
+app.use("/api/users", require("./controllers/users"));
+app.use("/api/login", require("./controllers/login"));
+
+if (process.env.NODE_ENV === "test") {
+  app.use("/api/testing", require("./controllers/testing"));
+}
+
 app.use(middleware.errorHandler);
 
 module.exports = app;
