@@ -1,3 +1,5 @@
+import { combineReducers } from "redux";
+
 const anecdotesAtStart = [
   "If it hurts, do it more often",
   "Adding manpower to a late software project makes it later!",
@@ -19,7 +21,7 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject);
 
-const reducer = (state = initialState, action) => {
+const anecdoteReducer = (state = initialState, action) => {
   switch (action.type) {
     case "ADD_VOTE":
       return state.map((s) =>
@@ -27,6 +29,15 @@ const reducer = (state = initialState, action) => {
       );
     case "CREATE_ANECDOTE":
       return [...state, action.payload];
+    default:
+      return state;
+  }
+};
+
+const filterReducer = (state = "", action) => {
+  switch (action.type) {
+    case "SET_FILTER":
+      return action.payload;
     default:
       return state;
   }
@@ -46,5 +57,17 @@ const addVote = (id) => {
   };
 };
 
+const filterChange = (filter) => {
+  return {
+    type: "SET_FILTER",
+    payload: filter,
+  };
+};
+
+const reducer = combineReducers({
+  anecdotes: anecdoteReducer,
+  filter: filterReducer,
+});
+
 export default reducer;
-export { createAnecdote, addVote };
+export { createAnecdote, addVote, filterChange };
