@@ -1,4 +1,4 @@
-import { combineReducers } from "redux";
+import { createSlice } from "@reduxjs/toolkit";
 
 const anecdotesAtStart = [
   "If it hurts, do it more often",
@@ -21,53 +21,42 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject);
 
-const anecdoteReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case "ADD_VOTE":
-      return state.map((s) =>
-        s.id === action.payload.id ? { ...s, votes: s.votes + 1 } : s
-      );
-    case "CREATE_ANECDOTE":
-      return [...state, action.payload];
-    default:
-      return state;
-  }
-};
-
-const filterReducer = (state = "", action) => {
-  switch (action.type) {
-    case "SET_FILTER":
-      return action.payload;
-    default:
-      return state;
-  }
-};
-
-const createAnecdote = (anecdote) => {
-  return {
-    type: "CREATE_ANECDOTE",
-    payload: asObject(anecdote),
-  };
-};
-
-const addVote = (id) => {
-  return {
-    type: "ADD_VOTE",
-    payload: { id },
-  };
-};
-
-const filterChange = (filter) => {
-  return {
-    type: "SET_FILTER",
-    payload: filter,
-  };
-};
-
-const reducer = combineReducers({
-  anecdotes: anecdoteReducer,
-  filter: filterReducer,
+const anecdoteSlice = createSlice({
+  name: "anecdotes",
+  initialState,
+  reducers: {
+    createAnecdote(state, action) {
+      state.push(asObject(action.payload));
+    },
+    addVote(state, action) {
+      const anecdote = state.find((s) => s.id === action.payload);
+      if (anecdote) {
+        anecdote.votes++;
+      }
+    },
+  },
 });
 
-export default reducer;
-export { createAnecdote, addVote, filterChange };
+const filterSlice = createSlice({
+  name: "filter",
+  initialState: "",
+  reducers: {
+    filterChange(state, action) {
+      return action.payload;
+    },
+  },
+});
+
+const anecdoteReducer = anecdoteSlice.reducer;
+const { createAnecdote, addVote } = anecdoteSlice.actions;
+
+const filterReducer = filterSlice.reducer;
+const { filterChange } = filterSlice.actions;
+
+export {
+  createAnecdote,
+  addVote,
+  filterChange,
+  anecdoteReducer,
+  filterReducer,
+};
