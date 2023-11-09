@@ -1,38 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-const anecdotesAtStart = [
-  "If it hurts, do it more often",
-  "Adding manpower to a late software project makes it later!",
-  "The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.",
-  "Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
-  "Premature optimization is the root of all evil.",
-  "Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.",
-];
-
-const getId = () => (100000 * Math.random()).toFixed(0);
-
-const asObject = (anecdote) => {
-  return {
-    content: anecdote,
-    id: getId(),
-    votes: 0,
-  };
-};
-
-const initialState = anecdotesAtStart.map(asObject);
+import anecdoteService from "../services/anecdotes";
 
 const anecdoteSlice = createSlice({
   name: "anecdotes",
-  initialState,
+  initialState: [],
   reducers: {
-    createAnecdote(state, action) {
-      state.push(asObject(action.payload));
+    setAnecdotes(state, action) {
+      return action.payload;
     },
-    addVote(state, action) {
-      const anecdote = state.find((s) => s.id === action.payload);
-      if (anecdote) {
-        anecdote.votes++;
-      }
+    addAnecdote(state, action) {
+      state.push(action.payload);
+    },
+    updateAnecdote(state, action) {
+      return state.map((s) =>
+        s.id === action.payload.id ? action.payload : s
+      );
     },
   },
 });
@@ -48,15 +30,33 @@ const filterSlice = createSlice({
 });
 
 const anecdoteReducer = anecdoteSlice.reducer;
-const { createAnecdote, addVote } = anecdoteSlice.actions;
+const { setAnecdotes, addAnecdote, updateAnecdote } = anecdoteSlice.actions;
 
 const filterReducer = filterSlice.reducer;
 const { filterChange } = filterSlice.actions;
 
-export {
-  createAnecdote,
-  addVote,
-  filterChange,
-  anecdoteReducer,
-  filterReducer,
+export const initializeAnecdotes = () => {
+  return async (dispatch) => {
+    const anecdotes = await anecdoteService.getAnecdotes();
+    dispatch(setAnecdotes(anecdotes));
+  };
 };
+
+export const createAnecdote = (content) => {
+  return async (dispatch) => {
+    const anecdote = await anecdoteService.createAnecdote(content);
+    dispatch(addAnecdote(anecdote));
+  };
+};
+
+export const addVote = (anecdote) => {
+  return async (dispatch) => {
+    const updatedAnecdote = await anecdoteService.updateAnecdote(anecdote.id, {
+      ...anecdote,
+      votes: anecdote.votes + 1,
+    });
+    dispatch(updateAnecdote(updatedAnecdote));
+  };
+};
+
+export { filterChange, anecdoteReducer, filterReducer };

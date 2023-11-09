@@ -9,9 +9,9 @@ const AnedcoteList = () => {
     .sort((a, b) => b.votes - a.votes);
   const dispatch = useDispatch();
 
-  const vote = (anecdote) => {
-    dispatch(addVote(anecdote.id));
-    dispatch(setNotification(`you voted '${anecdote.content}'`));
+  const vote = async (anecdote) => {
+    dispatch(addVote(anecdote));
+    dispatch(setNotification(`you voted '${anecdote.content}'`, 5));
   };
 
   return (
