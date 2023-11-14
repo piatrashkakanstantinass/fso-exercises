@@ -15,7 +15,7 @@ let container;
 beforeEach(() => {
   mockOnIncreaseLike = jest.fn();
   container = render(
-    <Blog blog={blog} onIncreaseLike={mockOnIncreaseLike} />
+    <Blog blog={blog} onIncreaseLike={mockOnIncreaseLike} />,
   ).container;
 });
 

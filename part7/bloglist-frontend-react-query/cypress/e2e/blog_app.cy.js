@@ -53,14 +53,14 @@ describe("Blog app", function () {
     it("fails with wrong credentials", function () {
       cy.get("input[name='username']").type(username);
       cy.get("input[name='password']").type(
-        correctPassword.substring(0, correctPassword.length - 1)
+        correctPassword.substring(0, correctPassword.length - 1),
       );
       cy.contains("login").click();
 
       cy.contains("Wrong credentials").should(
         "have.css",
         "color",
-        "rgb(255, 0, 0)"
+        "rgb(255, 0, 0)",
       );
     });
   });
@@ -175,7 +175,7 @@ describe("Blog app", function () {
                   return false;
                 }
                 return c;
-              })
+              }),
             ).should("not.be", false);
           });
       });
