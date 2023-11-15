@@ -16,7 +16,6 @@ export default function NotificationProvider({ children }) {
   const [notification, dispatch] = useReducer(reducer, null);
 
   useEffect(() => {
-    console.log(notification);
     if (notification === null) {
       return;
     }

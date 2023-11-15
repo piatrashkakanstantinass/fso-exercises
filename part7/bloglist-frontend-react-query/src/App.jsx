@@ -11,13 +11,15 @@ import {
 } from "./contexts/NotificationContext";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { setUser, unsetUser, useUser } from "./contexts/UserContext";
+import { Routes, Route, Link } from "react-router-dom";
+import UserList from "./components/UserList";
+import User from "./components/User";
 
 const App = () => {
   const queryClient = useQueryClient();
   const [user, dispatchUser] = useUser();
   const [notification, notificationDispatch] = useNotification();
   const [messageIsError, setMessageIsError] = useState(false);
-  const [formVisible, setFormVisible] = useState(false);
 
   const blogsQuery = useQuery({
     queryKey: ["blogs"],
@@ -49,7 +51,6 @@ const App = () => {
           `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
         ),
       );
-      setFormVisible(false);
     },
     {
       onError: (error) => {
@@ -92,24 +93,43 @@ const App = () => {
 
   return (
     <>
-      <h2>blogs</h2>
+      <h1>blogs</h1>
+      <nav>
+        <ul className="flex list-none gap-x-5">
+          <li>
+            <Link to="/blogs">Blogs</Link>
+          </li>
+          <li>
+            <Link to="/createBlog">Create blog</Link>
+          </li>
+          <li>
+            <Link to="/users">Users</Link>
+          </li>
+        </ul>
+      </nav>
       <Notification error={messageIsError}>{notification}</Notification>
       <p>
         {user.username} logged in{" "}
         <button onClick={() => dispatchUser(unsetUser())}>logout</button>
       </p>
-      <Toggleable
-        visible={formVisible}
-        openText="new blog"
-        onVisibleChange={(e) => setFormVisible(e)}
-      >
-        <BlogForm onSubmit={handleSubmit} />
-      </Toggleable>
-      <BlogList
-        blogs={blogs}
-        onIncreaseLike={handleLikeIncrease}
-        onDelete={handleDelete}
-      />
+      <Routes>
+        <Route
+          path="/createBlog"
+          element={<BlogForm onSubmit={handleSubmit} />}
+        />
+        <Route
+          path="/blogs"
+          element={
+            <BlogList
+              blogs={blogs}
+              onIncreaseLike={handleLikeIncrease}
+              onDelete={handleDelete}
+            />
+          }
+        />
+        <Route path="/users" element={<UserList />} />
+        <Route path="/users/:id" element={<User />} />
+      </Routes>
     </>
   );
 };
