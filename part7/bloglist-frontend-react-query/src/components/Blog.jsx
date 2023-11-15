@@ -27,12 +27,12 @@ const Blog = ({ blog, onIncreaseLike, onDelete }) => {
           <div>{blog.url}</div>
           <div>
             <span className="like-count">{blog.likes}</span>
-            <button onClick={onIncreaseLike}>like</button>
+            <button onClick={() => onIncreaseLike(blog.id)}>like</button>
           </div>
           <div>{blog.user?.name}</div>
           {user && user.username === blog.user?.username && (
             <div>
-              <button onClick={onDelete}>delete</button>
+              <button onClick={() => onDelete(blog.id)}>delete</button>
             </div>
           )}
         </>
