@@ -17,7 +17,7 @@ module.exports = {
   settings: { react: { version: "18.2" } },
   plugins: ["react-refresh", "jest", "cypress"],
   rules: {
-    indent: ["error", 2],
+    indent: ["error", 2, { SwitchCase: 1 }],
     "linebreak-style": ["error", "unix"],
     quotes: ["error", "double"],
     semi: ["error", "always"],

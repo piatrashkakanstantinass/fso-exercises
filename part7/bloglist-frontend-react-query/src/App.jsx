@@ -4,14 +4,17 @@ import BlogList from "./components/BlogList";
 import BlogForm from "./components/BlogForm";
 import { useState, useEffect } from "react";
 import blogService from "./services/blogs";
-import useTimeoutMessage from "./hooks/useTimeoutMessage";
 import Notification from "./components/Notification";
 import Toggleable from "./components/Toggleable";
+import {
+  setNotification,
+  useNotification,
+} from "./contexts/NotificationContext";
 
 const App = () => {
   const [user, setUser] = useUser();
   const [blogs, setBlogs] = useState([]);
-  const [message, setMessage] = useTimeoutMessage();
+  const [notification, notificationDispatch] = useNotification();
   const [messageIsError, setMessageIsError] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
 
@@ -28,18 +31,22 @@ const App = () => {
       const newBlog = await blogService.create({ title, author, url });
       setBlogs(blogs.concat(newBlog));
       setMessageIsError(false);
-      setMessage(`a new blog ${newBlog.title} by ${newBlog.author} added`);
+      notificationDispatch(
+        setNotification(
+          `a new blog ${newBlog.title} by ${newBlog.author} added`,
+        ),
+      );
       setFormVisible(false);
     } catch (error) {
       setMessageIsError(true);
-      setMessage(error.response.data.error);
+      notificationDispatch(setNotification(error.response.data.error));
     }
   }
 
   return (
     <>
       <h2>blogs</h2>
-      <Notification error={messageIsError}>{message}</Notification>
+      <Notification error={messageIsError}>{notification}</Notification>
       <p>
         {user.username} logged in{" "}
         <button onClick={() => setUser(null)}>logout</button>

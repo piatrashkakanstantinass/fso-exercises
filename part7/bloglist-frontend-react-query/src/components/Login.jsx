@@ -1,12 +1,15 @@
 import { useState } from "react";
 import loginService from "../services/login";
-import useTimeoutMessage from "../hooks/useTimeoutMessage";
 import Notification from "./Notification";
+import {
+  setNotification,
+  useNotification,
+} from "../contexts/NotificationContext";
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useTimeoutMessage();
+  const [notification, notificationDispatch] = useNotification();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -14,14 +17,14 @@ const Login = ({ onLogin }) => {
       const user = await loginService.login(username, password);
       onLogin(user);
     } catch (e) {
-      setErrorMessage("Wrong credentials");
+      notificationDispatch(setNotification("Wrong credentials"));
     }
   }
 
   return (
     <>
       <h2>log in to application</h2>
-      <Notification error>{errorMessage}</Notification>
+      <Notification error>{notification}</Notification>
       <form onSubmit={handleSubmit}>
         <div>
           <label>
