@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useUser } from "../contexts/UserContext";
 
-const Blog = ({ blog, onIncreaseLike, onDelete, isExapnded = false }) => {
+const Blog = ({
+  blog,
+  onIncreaseLike,
+  onDelete,
+  isExapnded = false,
+  onPostComment,
+}) => {
   const [user] = useUser();
 
   const blogStyle = {
@@ -36,6 +42,21 @@ const Blog = ({ blog, onIncreaseLike, onDelete, isExapnded = false }) => {
               <button onClick={() => onDelete(blog.id)}>delete</button>
             </div>
           )}
+          <h3>Comments</h3>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onPostComment(blog.id, e.target.comment.value);
+            }}
+          >
+            <input name="comment" />
+            <button>submit</button>
+          </form>
+          <ul>
+            {blog.comments.map((c, i) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
         </>
       )}
     </div>

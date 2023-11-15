@@ -44,6 +44,15 @@ const App = () => {
     );
   });
 
+  const addCommentMutation = useMutation(async ({ id, comment }) => {
+    await blogService.postComment(id, comment);
+    queryClient.setQueryData(["blogs"], (old) =>
+      old.map((o) =>
+        o.id === id ? { ...o, comments: [...o.comments, comment] } : o,
+      ),
+    );
+  });
+
   const createBlogMutation = useMutation(
     async (newBlog) => {
       const returnedBlog = await blogService.create(newBlog);
@@ -94,6 +103,10 @@ const App = () => {
     deleteBlogMutation.mutate(id);
   }
 
+  function handlePostComment(id, comment) {
+    addCommentMutation.mutate({ id, comment });
+  }
+
   return (
     <>
       <h1>blogs</h1>
@@ -127,6 +140,7 @@ const App = () => {
               blogs={blogs}
               onIncreaseLike={handleLikeIncrease}
               onDelete={handleDelete}
+              onPostComment={handlePostComment}
             />
           }
         />
@@ -153,6 +167,7 @@ const App = () => {
                 onIncreaseLike={handleLikeIncrease}
                 onDelete={handleDelete}
                 blog={blogs.find((b) => b.id === blogId)}
+                onPostComment={handlePostComment}
               />
             )
           }

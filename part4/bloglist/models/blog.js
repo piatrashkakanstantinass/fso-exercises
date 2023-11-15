@@ -15,6 +15,7 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  comments: [{ type: String }],
   user: { type: Schema.Types.ObjectId, ref: "User", immutable: true },
 });
 
