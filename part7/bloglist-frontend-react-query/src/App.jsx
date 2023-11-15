@@ -1,8 +1,7 @@
 import Login from "./components/Login";
-import useUser from "./hooks/useUser";
 import BlogList from "./components/BlogList";
 import BlogForm from "./components/BlogForm";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import blogService from "./services/blogs";
 import Notification from "./components/Notification";
 import Toggleable from "./components/Toggleable";
@@ -11,10 +10,11 @@ import {
   useNotification,
 } from "./contexts/NotificationContext";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { setUser, unsetUser, useUser } from "./contexts/UserContext";
 
 const App = () => {
   const queryClient = useQueryClient();
-  const [user, setUser] = useUser();
+  const [user, dispatchUser] = useUser();
   const [notification, notificationDispatch] = useNotification();
   const [messageIsError, setMessageIsError] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
@@ -60,7 +60,7 @@ const App = () => {
   );
 
   if (!user) {
-    return <Login onLogin={(u) => setUser(u)} />;
+    return <Login onLogin={(u) => dispatchUser(setUser(u))} />;
   }
 
   if (blogsQuery.isLoading) {
@@ -96,7 +96,7 @@ const App = () => {
       <Notification error={messageIsError}>{notification}</Notification>
       <p>
         {user.username} logged in{" "}
-        <button onClick={() => setUser(null)}>logout</button>
+        <button onClick={() => dispatchUser(unsetUser())}>logout</button>
       </p>
       <Toggleable
         visible={formVisible}
