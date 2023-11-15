@@ -1,26 +1,27 @@
 import { useState } from "react";
 import { useUser } from "../contexts/UserContext";
 
-const Blog = ({ blog, onIncreaseLike, onDelete }) => {
+const Blog = ({ blog, onIncreaseLike, onDelete, isExapnded = false }) => {
   const [user] = useUser();
 
   const blogStyle = {
     paddingTop: 10,
-    paddingLeft: 2,
+    paddingLeft: 5,
+    paddingBottom: 10,
     border: "solid",
     borderWidth: 1,
     marginBottom: 5,
   };
 
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(isExapnded);
 
   return (
     <div style={blogStyle} className="blog">
       <div>
         {blog.title} {blog.author}
-        <button className="blog-expand" onClick={() => setExpanded(!expanded)}>
+        {/* <button className="blog-expand" onClick={() => setExpanded(!expanded)}>
           {expanded ? "hide" : "view"}
-        </button>
+        </button> */}
       </div>
       {expanded && (
         <>

@@ -1,16 +1,13 @@
 import Blog from "./Blog";
-import blogService from "../services/blogs";
+import { Link } from "react-router-dom";
 
 const BlogList = ({ blogs, onIncreaseLike, onDelete }) => {
   const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes);
 
   return sortedBlogs.map((blog) => (
-    <Blog
-      key={blog.id}
-      blog={blog}
-      onIncreaseLike={onIncreaseLike}
-      onDelete={onDelete}
-    />
+    <Link to={blog.id} key={blog.id}>
+      <Blog blog={blog} onIncreaseLike={onIncreaseLike} onDelete={onDelete} />
+    </Link>
   ));
 };
 

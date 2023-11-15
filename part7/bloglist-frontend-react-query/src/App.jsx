@@ -4,22 +4,25 @@ import BlogForm from "./components/BlogForm";
 import { useState } from "react";
 import blogService from "./services/blogs";
 import Notification from "./components/Notification";
-import Toggleable from "./components/Toggleable";
 import {
   setNotification,
   useNotification,
 } from "./contexts/NotificationContext";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { setUser, unsetUser, useUser } from "./contexts/UserContext";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useMatch, Navigate } from "react-router-dom";
 import UserList from "./components/UserList";
 import User from "./components/User";
+import Blog from "./components/Blog";
 
 const App = () => {
   const queryClient = useQueryClient();
   const [user, dispatchUser] = useUser();
   const [notification, notificationDispatch] = useNotification();
   const [messageIsError, setMessageIsError] = useState(false);
+
+  const blogMatch = useMatch("/blogs/:blogId");
+  const blogId = blogMatch === null ? null : blogMatch.params.blogId;
 
   const blogsQuery = useQuery({
     queryKey: ["blogs"],
@@ -127,8 +130,33 @@ const App = () => {
             />
           }
         />
+        <Route
+          path="/"
+          element={
+            <BlogList
+              blogs={blogs}
+              onIncreaseLike={handleLikeIncrease}
+              onDelete={handleDelete}
+            />
+          }
+        />
         <Route path="/users" element={<UserList />} />
         <Route path="/users/:id" element={<User />} />
+        <Route
+          path="/blogs/:id"
+          element={
+            blogId === null ? (
+              <Navigate to="/blogs" />
+            ) : (
+              <Blog
+                isExapnded
+                onIncreaseLike={handleLikeIncrease}
+                onDelete={handleDelete}
+                blog={blogs.find((b) => b.id === blogId)}
+              />
+            )
+          }
+        />
       </Routes>
     </>
   );
