@@ -1,5 +1,6 @@
 const { ApolloServer } = require("@apollo/server");
 const { startStandaloneServer } = require("@apollo/server/standalone");
+const crypto = require("crypto");
 
 let authors = [
   {
@@ -98,16 +99,92 @@ let books = [
 */
 
 const typeDefs = `#graphql
+  type Book {
+    title: String!
+    author: String!
+    published: String!
+    genres: [String!]!
+  }
+
+  type Author {
+    name: String!
+    bookCount: Int!
+    born: Int
+  }
+
   type Query {
     bookCount: Int!
     authorCount: Int!
+    allBooks(author: String, genre: String): [Book!]!
+    allAuthors: [Author!]!
+  }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
+    editAuthor(name: String!, setBornTo: Int): Author
   }
 `;
+
+function applyFilter(value, filter, filterFunc) {
+  if (filter === undefined) {
+    return true;
+  } else {
+    return filterFunc(value, filter);
+  }
+}
+
+function applyFilters(value, filters, filterFuncs) {
+  for (let i = 0; i < filters.length && i < filterFuncs.length; ++i) {
+    if (!applyFilter(value, filters[i], filterFuncs[i])) {
+      return false;
+    }
+  }
+  return true;
+}
 
 const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
+    allBooks: (root, { author, genre }) =>
+      books.filter((b) =>
+        applyFilters(
+          b,
+          [author, genre],
+          [
+            (b, author) => b.author === author,
+            (b, genre) => b.genres.includes(genre),
+          ],
+        ),
+      ),
+    allAuthors: () => authors,
+  },
+  Author: {
+    bookCount: (root) => books.filter((b) => b.author === root.name).length,
+  },
+  Mutation: {
+    addBook: (root, args) => {
+      const book = { ...args, id: crypto.randomUUID() };
+      books.push(book);
+      if (authors.find((a) => a.name === book.author) === null) {
+        const author = { name: book.author, id: crypto.randomUUID() };
+        authors.push(author);
+      }
+      return book;
+    },
+    editAuthor: (root, { name, setBornTo }) => {
+      const i = authors.findIndex((a) => a.name === name);
+      if (i === -1) {
+        return null;
+      }
+      authors[i].born = setBornTo;
+      return authors[i];
+    },
   },
 };
 
