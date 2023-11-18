@@ -171,7 +171,7 @@ const resolvers = {
     addBook: (root, args) => {
       const book = { ...args, id: crypto.randomUUID() };
       books.push(book);
-      if (authors.find((a) => a.name === book.author) === null) {
+      if (authors.find((a) => a.name === book.author) === undefined) {
         const author = { name: book.author, id: crypto.randomUUID() };
         authors.push(author);
       }
