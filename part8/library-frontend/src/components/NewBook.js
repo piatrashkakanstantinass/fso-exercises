@@ -4,7 +4,14 @@ import { ADD_BOOK, GET_AUTHORS, GET_BOOKS } from "../queries";
 
 const NewBook = (props) => {
   const [addBook] = useMutation(ADD_BOOK, {
-    refetchQueries: [GET_BOOKS, GET_AUTHORS],
+    refetchQueries: [GET_AUTHORS],
+    update: (cache, response) => {
+      cache.updateQuery({ query: GET_BOOKS }, ({ allBooks }) => {
+        return {
+          allBooks: allBooks.concat(response.data.addBook),
+        };
+      });
+    },
   });
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
