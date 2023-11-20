@@ -63,3 +63,11 @@ export const LOGIN = gql`
     }
   }
 `;
+
+export const USER_DATA = gql`
+  query {
+    me {
+      favoriteGenre
+    }
+  }
+`;
