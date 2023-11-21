@@ -5,6 +5,8 @@ import NewBook from "./components/NewBook";
 import Login from "./components/Login";
 import Recommend from "./components/Recommend";
 import { useSetToken, useToken } from "./contexts/TokenContext";
+import { useSubscription } from "@apollo/client";
+import { BOOK_ADDED } from "./queries";
 
 const App = () => {
   const [page, setPage] = useState("authors");
@@ -16,6 +18,12 @@ const App = () => {
       setPage("authors");
     }
   }, [token, page]);
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      alert(`New book "${data.data.bookAdded.title}" added`);
+    },
+  });
 
   return (
     <div>

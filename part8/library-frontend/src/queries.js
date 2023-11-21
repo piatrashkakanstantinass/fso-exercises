@@ -71,3 +71,11 @@ export const USER_DATA = gql`
     }
   }
 `;
+
+export const BOOK_ADDED = gql`
+  subscription {
+    bookAdded {
+      title
+    }
+  }
+`;
