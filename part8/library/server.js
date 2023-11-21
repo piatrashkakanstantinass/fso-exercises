@@ -18,61 +18,7 @@ const { WebSocketServer } = require("ws");
 const { useServer } = require("graphql-ws/lib/use/ws");
 const { PubSub } = require("graphql-subscriptions");
 const pubsub = new PubSub();
-
-const typeDefs = `#graphql
-  type Book {
-    title: String!
-    author: Author!
-    published: String!
-    genres: [String!]!
-  }
-
-  type Author {
-    name: String!
-    bookCount: Int!
-    born: Int
-  }
-
-  type User {
-    username: String!
-    favoriteGenre: String!
-    id: ID!
-  }
-
-  type Token {
-    value: String!
-  }
-
-  type Query {
-    bookCount: Int!
-    authorCount: Int!
-    allBooks(author: String, genre: String): [Book!]!
-    allAuthors: [Author!]!
-    me: User
-  }
-
-  type Mutation {
-    addBook(
-      title: String!
-      author: String!
-      published: Int!
-      genres: [String!]!
-    ): Book!
-    editAuthor(name: String!, setBornTo: Int!): Author
-    createUser(
-      username: String!
-      favoriteGenre: String!
-    ): User
-    login(
-      username: String!
-      password: String!
-    ): Token
-  }
-
-  type Subscription {
-    bookAdded: Book!
-  }
-`;
+const typeDefs = require("./schema");
 
 function applyFilter(value, filter, filterFunc) {
   if (filter === undefined) {
