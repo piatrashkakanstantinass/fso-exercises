@@ -5,13 +5,14 @@ import NewBook from "./components/NewBook";
 import Login from "./components/Login";
 import Recommend from "./components/Recommend";
 import { useSetToken, useToken } from "./contexts/TokenContext";
-import { useSubscription } from "@apollo/client";
-import { BOOK_ADDED } from "./queries";
+import { useApolloClient, useSubscription } from "@apollo/client";
+import { BOOK_ADDED, GET_BOOKS } from "./queries";
 
 const App = () => {
   const [page, setPage] = useState("authors");
   const token = useToken();
   const setToken = useSetToken();
+  const client = useApolloClient();
 
   useEffect(() => {
     if (token !== null && page === "login") {
@@ -21,7 +22,13 @@ const App = () => {
 
   useSubscription(BOOK_ADDED, {
     onData: ({ data }) => {
-      alert(`New book "${data.data.bookAdded.title}" added`);
+      const addedBook = data.data.bookAdded;
+      alert(`New book "${addedBook.title}" added`);
+      client.cache.updateQuery({ query: GET_BOOKS }, ({ allBooks }) => {
+        return {
+          allBooks: allBooks.concat(addedBook),
+        };
+      });
     },
   });
 
