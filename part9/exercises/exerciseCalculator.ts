@@ -8,7 +8,7 @@ interface ExercisesInfo {
   average: number;
 }
 
-function calculateExercises(
+export default function calculateExercises(
   exerciseGoals: number[],
   target: number
 ): ExercisesInfo {
@@ -41,7 +41,9 @@ function calculateExercises(
   };
 }
 
-const target = Number(process.argv[2]);
-const goals = process.argv.slice(3).map((n) => Number(n));
+if (require.main === module) {
+  const target = Number(process.argv[2]);
+  const goals = process.argv.slice(3).map((n) => Number(n));
 
-console.log(calculateExercises(goals, target));
+  console.log(calculateExercises(goals, target));
+}
